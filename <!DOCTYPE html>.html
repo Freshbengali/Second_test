@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3 på rad</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .game {
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .cell {
+      background: #1e293b;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: background 0.2s;
+    }
+
+    .cell:hover {
+      background: #334155;
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #22c55e;
+      color: black;
+    }
+
+    button:hover {
+      background: #16a34a;
+    }
+
+    .status {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <h1>3 på rad</h1>
+    <div class="status" id="status">Spiller: X</div>
+    <div class="board" id="board"></div>
+    <button onclick="restartGame()">Start på nytt</button>
+  </div>
+
+  <script>
+    const boardElement = document.getElementById("board");
+    const statusElement = document.getElementById("status");
+
+    let board = Array(9).fill(null);
+    let currentPlayer = "X";
+    let gameActive = true;
+
+    const winningCombos = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+
+    function createBoard() {
+      boardElement.innerHTML = "";
+      board.forEach((cell, index) => {
+        const cellDiv = document.createElement("div");
+        cellDiv.classList.add("cell");
+        cellDiv.textContent = cell;
+        if (cell) cellDiv.classList.add("taken");
+        cellDiv.addEventListener("click", () => handleMove(index));
+        boardElement.appendChild(cellDiv);
+      });
+    }
+
+    function handleMove(index) {
+      if (!gameActive || board[index]) return;
+
+      board[index] = currentPlayer;
+      checkWinner();
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      statusElement.textContent = `Spiller: ${currentPlayer}`;
+      createBoard();
+    }
+
+    function checkWinner() {
+      for (let combo of winningCombos) {
+        const [a, b, c] = combo;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          statusElement.textContent = `Vinner: ${board[a]} 🎉`;
+          gameActive = false;
+          return;
+        }
+      }
+
+      if (!board.includes(null)) {
+        statusElement.textContent = "Uavgjort 🤝";
+        gameActive = false;
+      }
+    }
+
+    function restartGame() {
+      board = Array(9).fill(null);
+      currentPlayer = "X";
+      gameActive = true;
+      statusElement.textContent = "Spiller: X";
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
